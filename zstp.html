@@ -1,1 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/vis-network.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/vis-network.min.css" rel="stylesheet">
+    <!-- 在<head>标签中引入 vis.js -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识图谱查询</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+
+        .sidebar h2 {
+        color: #ffffff; /* 修改标题字体颜色为白色 */
+}
+
+        /* 左侧侧边导航栏样式 */
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        .sidebar .menu-item {
+            margin: 10px 0;
+            padding: 10px;
+            cursor: pointer;
+            color:#ecf0f1;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .menu-item:hover {
+            background-color: #ddd;
+            border-radius: 5px;
+        }
+        .content {
+            width: 50%;
+            padding: 20px;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            position: relative;
+            overflow: hidden;
+        }
+        .graph-area {
+            width: 100%;
+            height: 100%;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .query-area {
+            width: 30%;
+            padding: 20px;
+        }
+        .query-area h2 {
+            margin: 0 0 10px 0;
+        }
+        .query-area input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .query-area button {
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .query-area button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result-item {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧菜单栏 -->
+    <div class="sidebar">
+        <h2>知识图谱查询</h2>
+        <div class="menu-item">🏠 首页</div>
+        <div class="menu-item">🔍 查询</div>
+        <div class="menu-item">📚 数据管理</div>
+        <div class="menu-item">⚙️ 设置</div>
+    </div>
+
+    <!-- 中间图谱展示区 -->
+    <div class="content">
+        <h2>知识图谱展示</h2>
+        <div id="graph" class="graph-area">
+            <!-- 图谱将在这里展示 -->
+        </div>
+    </div>
+
+    <!-- 右侧查询结果区 -->
+    <div class="query-area">
+        <h2>实体查询</h2>
+        <input type="text" id="entityInput" placeholder="请输入实体名称">
+        <button onclick="queryEntity()">查询</button>
+      <div class="result" id="queryResult">
+    <!-- 查询结果将在这里显示 -->
+</div>
+<div id="queryGraph" class="graph-area" style="height: 800px; margin-top: 20px;">
+    <!-- 查询图谱将在这里展示 -->
+</div>
+
+        </div>
+    </div>
+
+    <!-- JS 脚本 -->
+    <script>
+       document.addEventListener('DOMContentLoaded', loadGraph);
+
+async function loadGraph() {
+    try {
+        const response = await fetch('http://localhost:3000/graph');
+        const data = await response.json();
+        
+        const nodes = new vis.DataSet(data.nodes.map(node => ({
+            id: node.id,
+            label: node.label,
+            title: node.description || ""  // 显示节点描述
+        })));
+
+        const edges = new vis.DataSet(data.links.map(link => ({
+            from: link.source,
+            to: link.target,
+            label: link.type,
+            arrows: 'to'
+        })));
+
+        const container = document.getElementById('graph');
+        const networkData = { nodes: nodes, edges: edges };
+        const options = {
+            nodes: {
+                shape: 'dot',
+                size: 20,
+                font: { size: 14 }
+            },
+            edges: {
+                font: { align: 'middle' },
+                arrows: 'to'
+            },
+            physics: {
+                stabilization: true  // 图谱稳定布局
+            }
+        };
+
+        new vis.Network(container, networkData, options);
+    } catch (error) {
+        console.error('Error loading graph:', error);
+        document.getElementById('graph').innerHTML = '无法加载图谱数据';
+    }
+}
+// 查询函数优化
+async function queryEntity() {
+  const input = document.getElementById("entityInput").value.trim();
+  const resultArea = document.getElementById("queryResult");
+  resultArea.innerHTML = "";
+
+  try {
+    const response = await fetch('http://localhost:3000/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entity: input })
+    });
+
+    if (!response.ok) {
+      throw new Error('未找到该实体！');
+    }
+
+    const data = await response.json();
+    displayGraph(data.nodes, data.links); // 调用图形化函数
+
+    // 显示实体属性
+    resultArea.innerHTML = Object.entries(data.attributes || {}).map(([key, value]) =>
+      `<div class='result-item'><strong>${key}：</strong> ${value}</div>`
+    ).join("");
+  } catch (error) {
+    resultArea.innerHTML = `<div class='result-item'>${error.message}</div>`;
+  }
+}
+
+// 图谱绘制函数优化
+function displayGraph(nodesData, linksData) {
+  const container = document.getElementById("queryGraph");
+  container.innerHTML = "";
+
+  const nodes = new vis.DataSet(nodesData.map(node => ({
+    id: node.id,
+    label: node.label,
+    title: Object.entries(node.properties).map(([key, value]) => `${key}: ${value}`).join("<br>")
+  })));
+
+  const edges = new vis.DataSet(linksData.map(link => ({
+    from: link.source,
+    to: link.target,
+    label: link.type,
+    arrows: 'to'
+  })));
+
+  new vis.Network(container, { nodes, edges }, { physics: { stabilization: true } });
+}
+
+
+        // 使用简单图形化展示
+function displayGraph(entity, relations) {
+    const container = document.getElementById("queryGraph");''
+    container.innerHTML = ""; // 清空之前的图谱
+
+    // 检查 relations 是否为空
+    if (relations.length === 0) {
+        container.innerHTML = "<div style='text-align: center;'>无关联数据可显示</div>";
+        return;
+    }
+
+    // 构建节点和边数据
+    const nodes = new vis.DataSet([
+        { id: 1, label: entity, color: '#3498db' }  // 查询的中心节点
+    ]);
+
+    const edges = [];
+
+    relations.forEach((rel, index) => {
+        const nodeId = index + 2;  // 从2开始，避免与中心节点冲突
+        nodes.add({ id: nodeId, label: rel.connectedEntity, color: '#2ecc71' });
+        edges.push({ from: 1, to: nodeId, label: rel.relation, arrows: 'to' });
+    });
+
+    const graphData = {
+        nodes: nodes,
+        edges: new vis.DataSet(edges)
+    };
+
+    const options = {
+        nodes: {
+            shape: 'dot',
+            size: 20,
+            font: { size: 14 }
+        },
+        edges: {
+            font: { align: 'middle' },
+            arrows: 'to'
+        },
+        physics: {
+            stabilization: true  // 图谱稳定布局
+        }
+    };
+    
+
+    new vis.Network(container, graphData, options);
+}
+
+    </script>
+</body>
+</html>
+
+
 
