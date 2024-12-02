@@ -65,6 +65,7 @@ app.get('/graph', async (req, res) => {
 });
 
 // 实体查询 API 端点
+// 实体查询 API 端点
 app.post('/query', async (req, res) => {
   const { entity } = req.body;
   const session = driver.session();
@@ -81,7 +82,7 @@ app.post('/query', async (req, res) => {
       return res.status(404).json({ message: '未找到该实体！' });
     }
 
-    const nodes = new Map();
+    const nodes = new Map(); // 使用 Map 避免重复节点
     const links = [];
 
     result.records.forEach(record => {
@@ -89,6 +90,7 @@ app.post('/query', async (req, res) => {
       const node2 = record.get('m');
       const relation = record.get('r');
 
+      // 确保节点有名称或默认标签
       [node1, node2].forEach(node => {
         nodes.set(node.identity.toString(), {
           id: node.identity.toString(),
@@ -97,10 +99,11 @@ app.post('/query', async (req, res) => {
         });
       });
 
+      // 确保关系有类型名称
       links.push({
         source: node1.identity.toString(),
         target: node2.identity.toString(),
-        type: relation.type
+        type: relation.type || "未命名关系"
       });
     });
 
@@ -118,8 +121,12 @@ app.post('/query', async (req, res) => {
   }
 });
 
+
 // 启动服务器
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
+  console.log("Nodes:", Array.from(nodes.values()));
+  console.log("Links:", links);
+
 });
