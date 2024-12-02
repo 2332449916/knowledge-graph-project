@@ -121,7 +121,7 @@
       <div class="result" id="queryResult">
     <!-- 查询结果将在这里显示 -->
 </div>
-<div id="queryGraph" class="graph-area" style="height: 800px; margin-top: 20px;">
+<div id="queryGraph" class="graph-area" style="height: 800px; width: 100%;">
     <!-- 查询图谱将在这里展示 -->
 </div>
 
@@ -203,74 +203,97 @@ async function queryEntity() {
 }
 
 // 图谱绘制函数优化
-function displayGraph(nodesData, linksData) {
-  const container = document.getElementById("queryGraph");
-  container.innerHTML = "";
+// 图谱绘制函数优化
+// 查询函数
+async function queryEntity() {
+  const input = document.getElementById("entityInput").value.trim();
+  const resultArea = document.getElementById("queryResult");
+  resultArea.innerHTML = "";
 
-  const nodes = new vis.DataSet(nodesData.map(node => ({
-    id: node.id,
-    label: node.label,
-    title: Object.entries(node.properties).map(([key, value]) => `${key}: ${value}`).join("<br>")
-  })));
-
-  const edges = new vis.DataSet(linksData.map(link => ({
-    from: link.source,
-    to: link.target,
-    label: link.type,
-    arrows: 'to'
-  })));
-
-  new vis.Network(container, { nodes, edges }, { physics: { stabilization: true } });
-}
-
-
-        // 使用简单图形化展示
-function displayGraph(entity, relations) {
-    const container = document.getElementById("queryGraph");''
-    container.innerHTML = ""; // 清空之前的图谱
-
-    // 检查 relations 是否为空
-    if (relations.length === 0) {
-        container.innerHTML = "<div style='text-align: center;'>无关联数据可显示</div>";
-        return;
-    }
-
-    // 构建节点和边数据
-    const nodes = new vis.DataSet([
-        { id: 1, label: entity, color: '#3498db' }  // 查询的中心节点
-    ]);
-
-    const edges = [];
-
-    relations.forEach((rel, index) => {
-        const nodeId = index + 2;  // 从2开始，避免与中心节点冲突
-        nodes.add({ id: nodeId, label: rel.connectedEntity, color: '#2ecc71' });
-        edges.push({ from: 1, to: nodeId, label: rel.relation, arrows: 'to' });
+  try {
+    const response = await fetch('http://localhost:3000/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entity: input })
     });
 
-    const graphData = {
-        nodes: nodes,
-        edges: new vis.DataSet(edges)
-    };
+    if (!response.ok) {
+      throw new Error('未找到该实体！');
+    }
 
-    const options = {
-        nodes: {
-            shape: 'dot',
-            size: 20,
-            font: { size: 14 }
-        },
-        edges: {
-            font: { align: 'middle' },
-            arrows: 'to'
-        },
-        physics: {
-            stabilization: true  // 图谱稳定布局
-        }
-    };
-    
+    const data = await response.json();
+    displayGraph(data.nodes, data.links); // 调用图形化函数
 
-    new vis.Network(container, graphData, options);
+    // 显示实体属性
+    resultArea.innerHTML = Object.entries(data.attributes || {}).map(([key, value]) =>
+      `<div class='result-item'><strong>${key}：</strong> ${value}</div>`
+    ).join("");
+  } catch (error) {
+    resultArea.innerHTML = `<div class='result-item'>${error.message}</div>`;
+  }
 }
+
+// 图谱绘制函数
+function displayGraph(nodesData, linksData) {
+  const container = document.getElementById("queryGraph");
+  container.innerHTML = "";  // 清空之前的图谱
+
+  // 统计每个节点的连接数
+  const nodeConnections = {};
+  linksData.forEach(link => {
+    nodeConnections[link.source] = (nodeConnections[link.source] || 0) + 1;
+    nodeConnections[link.target] = (nodeConnections[link.target] || 0) + 1;
+  });
+
+  // 构建节点数据集
+  const nodes = new vis.DataSet(
+    nodesData.map(node => ({
+      id: node.id,
+      label: node.label || "未命名节点", // 使用节点名称
+      title: Object.entries(node.properties || {}).map(([key, value]) => `${key}: ${value}`).join("<br>"),
+      shape: 'dot',  // 使用圆形节点
+      size: 20,
+      color: nodeConnections[node.id] > 1 ? '#E74C3C' : '#ABEBC6',  // 多边节点为红色，单边节点为浅绿色
+      font: {
+        size: 14,
+        color: '#333',
+        vadjust: 20  // 标签显示在节点下方
+      }
+    }))
+  );
+
+  // 构建边数据集
+  const edges = new vis.DataSet(
+    linksData.map(link => ({
+      from: link.source,
+      to: link.target,
+      label: link.type || "未命名关系",  // 显示关系名称
+      font: { align: 'middle', color: '#555' },
+      arrows: 'to'
+    }))
+  );
+
+  const options = {
+    nodes: {
+      shape: 'dot',
+      size: 20,
+      font: { size: 14, color: '#333' }
+    },
+    edges: {
+      font: { align: 'middle', color: '#555' }, // 显示关系名称在中间
+      arrows: { to: { enabled: true } },
+      smooth: true
+    },
+    physics: {
+      enabled: true,
+      stabilization: { iterations: 1000 }
+    }
+  };
+
+  const networkData = { nodes, edges };
+  new vis.Network(container, networkData, options);
+}
+
 
     </script>
 </body>
