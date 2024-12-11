@@ -64,49 +64,54 @@ app.get('/', (req, res) => {
 app.get('/graph', async (req, res) => {
   const session = driver.session();
   try {
-      const query = `
-          MATCH (n)-[r]-(m)
-          RETURN n, r, m LIMIT 1000
-      `;
-      const result = await session.run(query);
+    const query = `
+        MATCH (n)-[r]->(m)
+        RETURN n, r, m LIMIT 1000
+    `;
+    const result = await session.run(query);
 
-      const nodes = new Map();
-      const links = new Map();
+    const nodes = new Map();
+    const links = new Set(); // 使用 Set 去重
 
-      result.records.forEach(record => {
-          const node1 = record.get('n');
-          const node2 = record.get('m');
-          const relation = record.get('r');
+    result.records.forEach(record => {
+      const node1 = record.get('n');
+      const node2 = record.get('m');
+      const relation = record.get('r');
 
-          [node1, node2].forEach(node => {
-              nodes.set(node.identity.toString(), {
-                  id: node.identity.toString(),
-                  label: node.properties.name || "Unnamed Node",
-                  properties: node.properties
-              });
-          });
-
-          const linkKey = `${node1.identity.toString()}-${node2.identity.toString()}-${relation.type}`;
-          if (!links.has(linkKey)) {
-              links.set(linkKey, {
-                  source: node1.identity.toString(),
-                  target: node2.identity.toString(),
-                  type: relation.type || "Unnamed Relation"
-              });
-          }
+      // 添加节点
+      [node1, node2].forEach(node => {
+        nodes.set(node.identity.toString(), {
+          id: node.identity.toString(),
+          label: node.properties.name || "Unnamed Node",
+          properties: node.properties
+        });
       });
 
-      res.json({
-          nodes: Array.from(nodes.values()),
-          links: Array.from(links.values())
-      });
+      // 构建唯一的关系键
+      const linkKey = `${node1.identity.toString()}-${relation.type}-${node2.identity.toString()}`;
+      if (!links.has(linkKey)) {
+        links.add(linkKey);
+      }
+    });
+
+    // 转换 Set 为数组
+    const linksArray = Array.from(links).map(linkKey => {
+      const [source, type, target] = linkKey.split('-');
+      return { source, target, type };
+    });
+
+    res.json({
+      nodes: Array.from(nodes.values()),
+      links: linksArray
+    });
   } catch (error) {
-      console.error('Graph API Error:', error);
-      res.status(500).send('服务器错误');
+    console.error('Graph API Error:', error);
+    res.status(500).send('服务器错误');
   } finally {
-      await session.close();
+    await session.close();
   }
 });
+
 
 // Neo4j 实体查询 API
 app.post('/query', async (req, res) => {
@@ -282,3 +287,6 @@ app.delete('/api/students/:id', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
+
+
