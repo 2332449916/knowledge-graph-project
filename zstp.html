@@ -99,10 +99,10 @@
     <!-- 左侧菜单栏 -->
     <div class="sidebar">
         <h2>知识图谱查询</h2>
-        <div class="menu-item">🏠 首页</div>
-        <div class="menu-item">🔍 查询</div>
-        <div class="menu-item">📚 数据管理</div>
-        <div class="menu-item">⚙️ 设置</div>
+        <div class="menu-item"> 导航</div>
+        <div class="menu-item"> 查询</div>
+   
+
     </div>
 
     <!-- 中间图谱展示区 -->
@@ -143,12 +143,16 @@ async function loadGraph() {
             title: node.description || ""  // 显示节点描述
         })));
 
-        const edges = new vis.DataSet(data.links.map(link => ({
-            from: link.source,
-            to: link.target,
-            label: link.type,
-            arrows: 'to'
-        })));
+          const edges = new vis.DataSet(data.links.map(link => ({
+    from: link.source,
+    to: link.target,
+    label: link.type || "关系",
+    arrows: { to: { enabled: true, scaleFactor: 0.5 } }, // 确保箭头指向正确
+    color: { color: "#848484" }, // 边颜色
+    font: { align: 'middle' },  // 标签居中
+  })));
+
+
 
         const container = document.getElementById('graph');
         const networkData = { nodes: nodes, edges: edges };
@@ -298,5 +302,8 @@ function displayGraph(nodesData, linksData) {
     </script>
 </body>
 </html>
+
+
+
 
 
