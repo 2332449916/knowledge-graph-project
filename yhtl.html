@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互动与讨论平台</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+            /* 左侧侧边导航栏样式 */
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        .sidebar .menu-item {
+            margin: 15px 0;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #ecf0f1;
+        }
+        .sidebar .menu-item:hover {
+            background-color: #34495e;
+            border-radius: 5px;
+        }
+        .menu-item i {
+            margin-right: 10px;
+        }
+        .content {
+            width: 80%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .topic-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .discussion {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .reply-card {
+            background-color: #f9f9f9;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .reply-card .user {
+            font-weight: bold;
+        }
+        .reply-card .actions {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #7f8c8d;
+            cursor: pointer;
+        }
+        .reply-input {
+            display: flex;
+            align-items: center;
+        }
+        .reply-input textarea {
+            flex-grow: 1;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+        .reply-input button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reply-input button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>互动与讨论</h2>
+        <div class="menu-item"><i>🏠</i> 导航</div>
+        <div class="menu-item"><i>🌐</i> 话题广场</div>
+        <div class="menu-item"><i>✍️</i> 我的讨论</div>
+        <div class="menu-item"><i>⭐</i> 收藏夹</div>
+       
+    </div>
+    <div class="content">
+        <div class="topic-title">话题标题：如何提高学习效率？</div>
+        <div class="discussion">
+            <div class="reply-card">
+                <div class="user">用户A</div>
+                <div class="text">我觉得每天制定计划非常重要。</div>
+                <div class="actions">👍 点赞 | 💬 回复</div>
+            </div>
+            <div class="reply-card">
+                <div class="user">用户B</div>
+                <div class="text">同意！坚持打卡也很有效。</div>
+                <div class="actions">👍 点赞 | 💬 回复</div>
+            </div>
+        </div>
+        <div class="reply-input">
+            <textarea placeholder="请输入回复内容..."></textarea>
+            <button>发送</button>
+        </div>
+    </div>
+</body>
+</html>

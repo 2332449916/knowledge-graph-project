@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学情检测</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧功能栏样式 */
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .menu-item {
+            margin: 15px 0;
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        .menu-item:hover {
+            background-color: hsl(0, 11%, 11%);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+        }
+
+        /* 右侧内容区域样式 */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        /* 表单与表格样式 */
+        .form-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-container input,
+        .form-container button {
+            padding: 10px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧功能栏 -->
+    <div class="sidebar">
+        <h2>学情检测</h2>
+        <div class="menu-item" onclick="showModule('settings')"><i>⚙️</i> 导航</div>
+        <div class="menu-item" onclick="showModule('home')"><i>🏠</i> 主页</div>
+        <div class="menu-item" onclick="showModule('report')"><i>📊</i> 学情报告</div>
+        <div class="menu-item" onclick="showModule('test')"><i>✍️</i> 测验管理</div>
+        <div class="menu-item" onclick="showModule('students')"><i>👥</i> 学生管理</div>
+        
+    </div>
+
+    <!-- 右侧显示页面 -->
+    <div class="content">
+        <!-- 首页模块 -->
+        <div id="home">
+            <h1>欢迎来到学情检测，在这里您可以查看和管理学生的学习情况。</h1>
+           
+        </div>
+
+
+        <!-- 学情报告模块 -->
+    <div id="report" class="hidden">
+        <h1>学情报告管理</h1>
+        <!-- 报告表单 -->
+       <!-- 报告表单 -->
+    <form id="report-form" class="form-container">
+        <input type="hidden" id="report_id">
+        <input type="number" id="student_id" placeholder="学生ID" required>
+        <input type="number" step="0.01" id="average_score" placeholder="综合评分" required>
+        <input type="date" id="report_date" placeholder="日期" required>
+        <input type="text" id="remarks" placeholder="评论" required>
+        <button type="submit">保存</button>
+    </form>
+
+
+        <!-- 报告表格 -->
+        <table id="report-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>学生ID</th>
+                    <th>综合评分</th>
+                    <th>日期</th>
+                    <th>评价</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+        
+        <!-- 学生管理模块 -->
+        <div id="students" class="hidden">
+            <h1>学生管理</h1>
+            <!-- 横向学生表单 -->
+            <form id="student-form" class="form-container">
+
+                <input type="hidden" id="student-id">
+                <input type="text" id="name" placeholder="姓名" required>
+                <input type="text" id="gender" placeholder="性别" required>
+                <input type="date" id="birthdate" required>
+                <input type="text" id="class" placeholder="班级" required>
+                <button type="submit">保存</button>
+            </form>
+
+            <!-- 学生表格 -->
+            <table id="student-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>出生日期</th>
+                        <th>班级</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 显示指定模块并隐藏其他模块
+        function showModule(moduleId) {
+            // 获取所有模块
+            const modules = document.querySelectorAll('.content > div');
+            modules.forEach(module => {
+                module.classList.add('hidden'); // 隐藏所有模块
+            });
+            document.getElementById(moduleId).classList.remove('hidden'); // 显示选中的模块
+        }
+
+
+        //
+    // 显示模块初始化，默认显示首页
+    document.addEventListener("DOMContentLoaded", () => {
+        showModule('home');  // 确保默认显示首页
+        fetchReports();  // 加载学情报告数据
+    });
+
+    // 优化 fetchReports 添加错误处理和加载提示
+    async function fetchReports() {
+        try {
+            const response = await fetch('http://localhost:3000/api/reports');
+            if (!response.ok) throw new Error('无法获取学情报告数据');
+            const reports = await response.json();
+            renderReportTable(reports);
+        } catch (error) {
+            alert('加载数据失败: ' + error.message);
+        }
+    }
+
+    // 渲染学情报告表格
+    function renderReportTable(reports) {
+        const tableBody = document.querySelector('#report-table tbody');
+        tableBody.innerHTML = '';  // 清空表格
+
+        reports.forEach(report => {
+            const row = `
+
+                <tr>
+                    <td>${report.report_id}</td>
+                    <td>${report.student_id}</td>
+                    <td>${report.average_score}</td>
+                    <td>${report.report_date}</td>
+                    <td>${report.remarks}</td>
+                    <td>
+                        <button type="reset" onclick="document.querySelector('#report-form').reset(); document.querySelector('#report-id').value = '';">重置</button>
+                        <button onclick="editReport(${report.report_id}, '${report.student_id}', '${report.average_score}', '${report.report_date}', '${report.remarks}')">编辑</button>
+
+                        <button onclick="deleteReport(${report.report_id})">删除</button>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+
+
+    // 提交表单逻辑
+    // 报告表单提交
+    document.querySelector('#report-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.querySelector('#report_id').value;
+        const report = {
+            student_id: document.querySelector('#student_id').value,
+            average_score: document.querySelector('#average_score').value,
+            report_date: document.querySelector('#report_date').value,
+            remarks: document.querySelector('#remarks').value
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `http://localhost:3000/api/reports/${id}` : 'http://localhost:3000/api/reports';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(report)
+            });
+
+            if (!response.ok) throw new Error('操作失败，请重试！');
+            alert('学情报告操作成功');
+            fetchReports();  // 重新加载报告表格
+            document.querySelector('#report-form').reset();  // 重置表单
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    // 学生表单提交逻辑与上面类似...
+
+    // 删除报告
+    async function deleteReport(id) {
+        if (confirm('确定要删除这条学情报告吗？')) {
+            await fetch(`http://localhost:3000/api/reports/${id}`, { method: 'DELETE' });
+            fetchReports(); // 刷新表格
+        }
+    }
+
+    // 编辑报告（填充表单）
+ // 编辑报告（填充表单）
+    function editReport(report_id, student_id, average_score, report_date, remarks) {
+        document.querySelector('#report_id').value = report_id;
+        document.querySelector('#student_id').value = student_id;
+        document.querySelector('#average_score').value = average_score;
+        document.querySelector('#report_date').value = report_date;
+        document.querySelector('#remarks').value = remarks;
+    }
+
+    // 初始加载报告数据
+    fetchReports();
+
+
+        //
+
+
+
+        // 加载学生数据（示例）
+            async function fetchStudents() {
+        const response = await fetch('http://localhost:3000/api/students'); // 使用后端 API
+        const students = await response.json();
+        const tableBody = document.querySelector('#student-table tbody');
+        tableBody.innerHTML = ''; // 清空表格内容
+
+        students.forEach(student => {
+            const row = `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.gender}</td>
+                    <td>${student.birthdate}</td>
+                    <td>${student.class}</td>
+                    <td>
+                        <button onclick="editStudent(${student.id}, '${student.name}', '${student.gender}', '${student.birthdate}', '${student.class}')">编辑</button>
+                        <button onclick="deleteStudent(${student.id})">删除</button>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    // 获取表单元素
+    document.querySelector('#student-form').addEventListener('submit', async (e) => {
+        e.preventDefault();  // 防止表单默认提交行为
+        
+        const id = document.querySelector('#student-id').value; // 获取学生ID（如果是编辑操作）
+        const student = {
+            name: document.querySelector('#name').value,
+            gender: document.querySelector('#gender').value,
+            birthdate: document.querySelector('#birthdate').value,
+            class_name: document.querySelector('#class').value
+        };
+        
+        // 确定请求方法和 URL
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `http://localhost:3000/api/students/${id}` : 'http://localhost:3000/api/students';
+
+        // 发送数据到后端
+        await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(student)  // 将学生数据转换为 JSON 格式
+        });
+
+        alert('操作成功');  // 提示成功
+        fetchStudents(); // 重新加载学生数据到表格
+        document.querySelector('#student-form').reset(); // 重置表单
+    });
+
+    async function deleteStudent(id) {
+        if (confirm('确定要删除这名学生吗？')) {
+            await fetch(`http://localhost:3000/api/students/${id}`, { method: 'DELETE' });
+            fetchStudents();  // 刷新表格
+        }
+    }
+
+    function editStudent(id, name, gender, birthdate, className) {
+        document.querySelector('#student-id').value = id;
+        document.querySelector('#name').value = name;
+        document.querySelector('#gender').value = gender;
+        document.querySelector('#birthdate').value = birthdate;
+        document.querySelector('#class').value = className;
+}
+
+    // 初始加载学生数据
+    fetchStudents();
+
+    </script>
+</body>
+</html>
