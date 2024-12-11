@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识问答 - 小轨</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧侧边导航栏样式 */
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #555;
+        }
+
+        /* 主内容区样式 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .qa-display {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .qa-item {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .qa-item.user {
+            align-items: flex-end;
+        }
+
+        .qa-item p {
+            margin-bottom: 5px;
+        }
+
+        .qa-item .content {
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 60%;
+        }
+
+        .qa-item.user .content {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .qa-item.bot .content {
+            background-color: #e1e1e1;
+            color: #333;
+        }
+
+        .time {
+            font-size: 12px;
+            color: gray;
+            margin-top: 5px;
+        }
+
+        .actions {
+            margin-top: 5px;
+            display: flex;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .actions i {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .actions i:hover {
+            color: #007BFF;
+        }
+
+        /* 输入框样式 */
+        .qa-input {
+            background-color: #eee;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid #ccc;
+        }
+
+        .qa-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .qa-input button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .qa-input button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧侧边导航栏 -->
+    <div class="sidebar">
+        <h2>导航</h2>
+        <ul>
+            <li><a href="#qa">智能问答</a></li>
+            <li><a href="#kg">知识图谱</a></li>
+            <li><a href="#history">历史记录</a></li>
+            <li><a href="#bookmark">收藏</a></li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 问答展示区 -->
+        <div class="qa-display" id="qa-display">
+            <!-- 示例问答 -->
+            <div class="qa-item bot">
+                <div class="content">
+                    知识图谱是以图结构表示知识的一种方法，通过节点和边来表达实体及其关系。
+                </div>
+                <div class="time">小轨 · 2024-11-18 14:30</div>
+                <div class="actions">
+                    <i onclick="alert('已点赞')">👍</i>
+                    <i onclick="copyContent(this)">📋</i>
+                    <i onclick="alert('已收藏')">⭐</i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提问输入区 -->
+        <div class="qa-input">
+            <input type="text" id="question-input" placeholder="请输入您的问题...">
+            <button onclick="askQuestion()">提问</button>
+        </div>
+    </div>
+
+    <script>
+        // 提问功能实现
+        function askQuestion() {
+            const questionInput = document.getElementById("question-input");
+            const question = questionInput.value.trim();
+
+            if (!question) {
+                alert("请输入问题！");
+                return;
+            }
+
+            const qaDisplay = document.getElementById("qa-display");
+
+            // 创建用户问题显示
+            const userItem = document.createElement("div");
+            userItem.className = "qa-item user";
+            userItem.innerHTML = `
+                <div class="content">${question}</div>
+                <div class="time">用户 · ${getCurrentTime()}</div>
+            `;
+            qaDisplay.appendChild(userItem);
+
+            // 模拟小轨的回答
+            setTimeout(() => {
+                const botItem = document.createElement("div");
+                botItem.className = "qa-item bot";
+                botItem.innerHTML = `
+                    <div class="content">小轨的回答：这是关于 "${question}" 的详细解答。</div>
+                    <div class="time">小轨 · ${getCurrentTime()}</div>
+                    <div class="actions">
+                        <i onclick="alert('已点赞')">👍</i>
+                        <i onclick="copyContent(this)">📋</i>
+                        <i onclick="alert('已收藏')">⭐</i>
+                    </div>
+                `;
+                qaDisplay.appendChild(botItem);
+
+                // 滚动到底部
+                qaDisplay.scrollTop = qaDisplay.scrollHeight;
+            }, 1000);
+
+            // 清空输入框
+            questionInput.value = "";
+        }
+
+        // 获取当前时间
+        function getCurrentTime() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        }
+
+        // 复制内容到剪贴板
+        function copyContent(icon) {
+            const content = icon.parentNode.previousElementSibling.previousElementSibling.textContent;
+            navigator.clipboard.writeText(content).then(() => alert("内容已复制！"));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程首页</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* 导航栏样式 */
+        nav {
+            background-color: #333;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin-right: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #555;
+        }
+
+        .nav-right {
+            margin-left: auto;
+        }
+
+        /* 页面内容样式 */
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        p, ul {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+
+        .teacher-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .teacher-info img {
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            margin-right: 15px;
+        }
+
+        .highlight {
+            color: #007BFF;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <ul class="nav-left">
+            <li><a href="/">首页</a></li>
+            <li><a href="./knowledge-graph">知识图谱查询</a></li>
+            <li><a href="./qa.html">知识问答</a></li>
+            <li><a href="./study-monitoring">学情检测</a></li>
+            <li><a href="./discussion-board">互动与讨论</a></li>
+        </ul>
+        <ul class="nav-right">
+            <li><a href="./用户登录.html">登录</a></li>
+            <li><a href="./用户注册.html">注册</a></li>
+        </ul>
+    </nav>
+
+    <!-- 页面内容 -->
+    <div class="container">
+        <h1>欢迎访问我们的课程平台</h1>
+        <p>这是一个为学习者提供知识图谱、智能问答和学情监测的学习平台。</p>
+
+        <!-- 课程简介 -->
+        <section id="course-introduction">
+            <h2>课程简介</h2>
+            <p>本课程旨在帮助学习者了解知识图谱技术及其应用，通过系统的学习掌握关键理论和实践技能。</p>
+        </section>
+
+        <!-- 课程内容大纲 -->
+        <section id="course-outline">
+            <h2>课程内容大纲</h2>
+            <ul>
+                <li>第1章：知识图谱基础</li>
+                <li>第2章：知识建模与存储</li>
+                <li>第3章：图数据库的操作与应用</li>
+                <li>第4章：知识推理与问答</li>
+                <li>第5章：案例实践与项目开发</li>
+            </ul>
+        </section>
+
+        <!-- 教师信息 -->
+        <section id="teacher-info">
+            <h2>教师信息</h2>
+            <div class="teacher-info">
+                <img src="teacher.jpg" alt="教师头像">
+                <div>
+                    <p><span class="highlight">钱老师</span></p>
+                    <p>博士，知识图谱与人工智能专家，10年以上研究与教学经验。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 学习目标 -->
+        <section id="learning-objectives">
+            <h2>学习目标</h2>
+            <ul>
+                <li>掌握知识图谱的基本概念和应用场景。</li>
+                <li>理解图数据库的原理并能进行操作。</li>
+                <li>学会使用知识推理技术解决复杂问题。</li>
+                <li>具备设计与开发知识图谱项目的能力。</li>
+            </ul>
+        </section>
+
+        <!-- 学习时长 -->
+        <section id="study-duration">
+            <h2>学习时长</h2>
+            <p>本课程预计学习时长为 <span class="highlight">40小时</span>，建议每周学习 <span class="highlight">6-8小时</span>。</p>
+        </section>
+    </div>
+</body>
+</html>
